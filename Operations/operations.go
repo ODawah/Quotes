@@ -30,3 +30,20 @@ func InsertAuthor(db *sql.DB, author Schemas.Author) (*Schemas.Author, error) {
 	author.ID = int(id)
 	return &author, nil
 }
+
+func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
+	var author Schemas.Author
+	if name == "" {
+		return nil, errors.New("no name entered")
+	}
+	name = strings.ToLower(name)
+	statement, err := db.Prepare("SELECT * FROM authors WHERE name LIKE ? ")
+	if err != nil {
+		return nil, err
+	}
+	err = statement.QueryRow(name).Scan(&author.UUID, &author.ID, &author.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &author, nil
+}
