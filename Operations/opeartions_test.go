@@ -107,6 +107,58 @@ func TestSearchAuthor(t *testing.T) {
 	Database.CleanUp()
 }
 
+func TestSearchAuthorByUUID(t *testing.T) {
+	db, _ := Database.Connect()
+	var uuidList []string
+	authors := []Schemas.Author{
+		{Name: "omar"},
+		{Name: "adham"},
+		{Name: "maged"},
+	}
+
+	for _, tc := range authors {
+		author, err := InsertAuthor(db, tc)
+		if err != nil {
+			t.Fatalf("error inserting authors: %s ", err)
+		}
+		uuidList = append(uuidList, author.UUID)
+	}
+
+	type test struct {
+		name     string
+		uuid     string
+		expected *Schemas.Author
+		err      bool
+	}
+	tests := []test{
+		{"author UUID in database", uuidList[0], &Schemas.Author{Name: "omar", ID: 1}, false},
+		{"author UUID not in database", "aasdweqd1-aseqweg3-qe120oe-owek1olsd", nil, true},
+		{"no UUID", "", nil, true},
+	}
+
+	for _, tc := range tests {
+		got, err := SearchAuthorByUUID(db, tc.uuid)
+		if (err != nil) != tc.err {
+			Database.CleanUp()
+			t.Logf("test name: %s", tc.name)
+			t.Fatal(err)
+		}
+		if (got != nil) && (tc.expected != nil) {
+			if got.Name != tc.expected.Name {
+				Database.CleanUp()
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("expected: %s  got: %s", got.Name, tc.expected.Name)
+			}
+			if len(got.UUID) != 36 || got.UUID != tc.uuid {
+				Database.CleanUp()
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("got uuid: %s   expected uuid: %s", got.UUID, tc.uuid)
+			}
+		}
+	}
+	Database.CleanUp()
+}
+
 func TestInsertQuote(t *testing.T) {
 	// to make the test easy to read
 	longtext := "I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard to handle. But if you can't handle me at my worst, then you sure as hell don't deserve me at my best.I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard"

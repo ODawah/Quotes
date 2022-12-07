@@ -48,6 +48,22 @@ func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
 	return &author, nil
 }
 
+func SearchAuthorByUUID(db *sql.DB, uuid string) (*Schemas.Author, error) {
+	var author Schemas.Author
+	if uuid == "" {
+		return nil, errors.New("no uuid entered")
+	}
+	statement, err := db.Prepare("SELECT * FROM authors WHERE uuid LIKE ? ")
+	if err != nil {
+		return nil, err
+	}
+	err = statement.QueryRow(uuid).Scan(&author.UUID, &author.ID, &author.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &author, nil
+}
+
 func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
 	if quote.Text == "" {
 		return nil, errors.New("no quote inserted")
