@@ -16,7 +16,7 @@ func InsertAuthor(db *sql.DB, author Schemas.Author) (*Schemas.Author, error) {
 	} else if len(author.Name) < 3 {
 		return nil, errors.New("short name")
 	}
-	author.Name = strings.ToLower(author.Name)
+	author.Name = strings.TrimSpace(strings.ToLower(author.Name))
 	uuid := UuidGenerator()
 	statement, err := db.Exec("INSERT INTO authors(uuid, name) VALUES (?, ?)", uuid, author.Name)
 	if err != nil {
@@ -36,7 +36,7 @@ func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
 	if name == "" {
 		return nil, errors.New("no name entered")
 	}
-	name = strings.ToLower(name)
+	name = strings.TrimSpace(strings.ToLower(name))
 	statement, err := db.Prepare("SELECT * FROM authors WHERE name LIKE ? ")
 	if err != nil {
 		return nil, err
@@ -46,4 +46,36 @@ func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
 		return nil, err
 	}
 	return &author, nil
+}
+
+func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
+	if quote.Text == "" {
+		return nil, errors.New("no quote inserted")
+	} else if len(quote.Text) > 300 {
+		return nil, errors.New("long quote")
+	} else if len(quote.Text) < 10 {
+		return nil, errors.New("short quote")
+	}
+	var author *Schemas.Author
+	author, err := SearchAuthor(db, quote.Author.Name)
+	if err != nil || author == nil {
+		author, err = InsertAuthor(db, quote.Author)
+		if err != nil {
+			return nil, err
+		}
+	}
+	quote.Author = *author
+	quote.Text = strings.TrimSpace(strings.ToLower(quote.Text))
+	uuid := UuidGenerator()
+	statement, err := db.Exec("INSERT INTO quotes(uuid, quote, author_uuid) VALUES (?, ?, ?)", uuid, quote.Text, quote.Author.UUID)
+	if err != nil {
+		return nil, err
+	}
+	id, err := statement.LastInsertId()
+	if err != nil || id == 0 {
+		return nil, err
+	}
+	quote.UUID = uuid
+	quote.ID = int(id)
+	return &quote, nil
 }

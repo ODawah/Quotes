@@ -17,7 +17,7 @@ func Connect() (*sql.DB, error) {
 		return nil, err
 	}
 	statement.Exec()
-	statement, err = database.Prepare("CREATE TABLE IF NOT EXISTS quotes (uuid TEXT check(uuid IS NULL OR LENGTH(uuid) > 36 OR LENGTH(uuid) < 36) ,id INTEGER PRIMARY KEY AUTOINCREMENT , quote TEXT check(quote IS NULL OR LENGTH(quote) > 300) UNIQUE, author_uuid check(author_uuid IS NULL OR LENGTH(author_uuid) > 36 OR LENGTH(author_uuid) < 36), FOREIGN KEY (author_uuid) REFERENCES authors(uuid))")
+	statement, err = database.Prepare("CREATE TABLE IF NOT EXISTS quotes (uuid CHAR(36) NOT NULL check(LENGTH(uuid) = 36) UNIQUE,id INTEGER PRIMARY KEY AUTOINCREMENT,quote TEXT NOT NULL check(LENGTH(quote) BETWEEN 10 AND 300) UNIQUE,author_uuid NOT NULL check(LENGTH(author_uuid) = 36),FOREIGN KEY (author_uuid) REFERENCES authors(uuid))")
 	if err != nil {
 		return nil, err
 	}

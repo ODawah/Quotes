@@ -6,3 +6,8 @@ type Quote struct {
 	Text   string `json:"text"`
 	Author Author `json:"author"`
 }
+
+type QuoteList struct {
+	Author Author  `json:"author"`
+	Quotes []Quote `json:"quotes"`
+}
