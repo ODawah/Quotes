@@ -95,3 +95,25 @@ func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
 	quote.ID = int(id)
 	return &quote, nil
 }
+
+func SearchQuote(db *sql.DB, text string) (*Schemas.Quote, error) {
+	var quote Schemas.Quote
+	if text == "" {
+		return nil, errors.New("no quote entered")
+	}
+	text = strings.TrimSpace(strings.ToLower(text))
+	statement, err := db.Prepare("SELECT * FROM quotes WHERE quote LIKE ? ")
+	if err != nil {
+		return nil, err
+	}
+	err = statement.QueryRow(text).Scan(&quote.UUID, &quote.ID, &quote.Text, &quote.Author.UUID)
+	if err != nil {
+		return nil, err
+	}
+	author, err := SearchAuthorByUUID(db, quote.Author.UUID)
+	if err != nil {
+		return nil, err
+	}
+	quote.Author = *author
+	return &quote, nil
+}

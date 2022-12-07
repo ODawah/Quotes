@@ -229,3 +229,71 @@ func TestInsertQuote(t *testing.T) {
 	}
 	Database.CleanUp()
 }
+
+func TestSearchQuote(t *testing.T) {
+	db, _ := Database.Connect()
+
+	// insert quotes for the tests
+	quotes := []Schemas.Quote{
+		{Text: "heaven is for real", Author: Schemas.Author{Name: "omar"}},
+		{Text: "keep dreaming", Author: Schemas.Author{Name: "omar"}},
+		{Text: "work hard and non stop", Author: Schemas.Author{Name: "adham"}},
+	}
+
+	for _, tc := range quotes {
+		_, err := InsertQuote(db, tc)
+		if err != nil {
+			t.Fatalf("error inserting quotes: %s ", err)
+		}
+	}
+
+	type test struct {
+		name        string
+		searchQuote string
+		expected    *Schemas.Quote
+		err         bool
+	}
+	tests := []test{
+		{"quote in database", "heaven is for real", &Schemas.Quote{Text: "heaven is for real", Author: Schemas.Author{Name: "omar", ID: 1}}, false},
+		{"quote not in database", "get yourself out mud", nil, true},
+		{"no quote", "", nil, true},
+	}
+	for _, tc := range tests {
+		got, err := SearchQuote(db, tc.searchQuote)
+		if (err != nil) != tc.err {
+			Database.CleanUp()
+			t.Logf("test name: %s", tc.name)
+			t.Fatal(err)
+		}
+		if (got != nil) && (tc.expected != nil) {
+			if got.Text != tc.expected.Text {
+				Database.CleanUp()
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("expected: %s  got: %s", got.Text, tc.expected.Text)
+			}
+			if len(got.UUID) != 36 {
+				Database.CleanUp()
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("worng uuid: %s", got.UUID)
+			}
+			if len(got.Author.UUID) != 36 {
+				Database.CleanUp()
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("worng uuid: %s", got.Author.UUID)
+			}
+			if got.Author.Name != tc.expected.Author.Name {
+				Database.CleanUp()
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("expected: %s  got: %s", got.Author.Name, tc.expected.Author.Name)
+
+			}
+			if got.Author.ID != tc.expected.Author.ID {
+				Database.CleanUp()
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("expected: %d  got: %d", got.Author.ID, tc.expected.Author.ID)
+
+			}
+		}
+	}
+	Database.CleanUp()
+}
