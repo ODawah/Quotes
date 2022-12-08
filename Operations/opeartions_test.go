@@ -297,3 +297,80 @@ func TestSearchQuote(t *testing.T) {
 	}
 	Database.CleanUp()
 }
+
+func TestAuthorQuotes(t *testing.T) {
+	db, _ := Database.Connect()
+
+	InsertAuthor(db, Schemas.Author{Name: "hany"})
+	// insert quotes for the tests
+	quotes := []Schemas.Quote{
+		{Text: "heaven is for real", Author: Schemas.Author{Name: "omar"}},
+		{Text: "keep dreaming", Author: Schemas.Author{Name: "omar"}},
+		{Text: "work hard and non stop", Author: Schemas.Author{Name: "adham"}},
+	}
+
+	for _, tc := range quotes {
+		_, err := InsertQuote(db, tc)
+		if err != nil {
+			t.Fatalf("error inserting quotes: %s ", err)
+		}
+	}
+
+	type test struct {
+		name         string
+		searchAuthor string
+		expected     *Schemas.QuoteList
+		err          bool
+	}
+
+	tests := []test{
+		{"author in database", "omar", &Schemas.QuoteList{Author: Schemas.Author{Name: "omar", ID: 2}, Quotes: []Schemas.Quote{
+			{Text: "heaven is for real", Author: Schemas.Author{Name: "omar", ID: 2}},
+			{Text: "keep dreaming", Author: Schemas.Author{Name: "omar", ID: 2}},
+		}}, false},
+		{"author with no quotes", "hany", &Schemas.QuoteList{}, false},
+		{"no author", "", nil, true},
+	}
+
+	for _, tc := range tests {
+		got, err := AuthorQuotes(db, tc.searchAuthor)
+		if (err != nil) != tc.err {
+			Database.CleanUp()
+			t.Logf("test name: %s", tc.name)
+			t.Fatal(err)
+		}
+		if (got != nil) && (tc.expected != nil) {
+			for i, quote := range got.Quotes {
+				if quote.Text != tc.expected.Quotes[i].Text {
+					Database.CleanUp()
+					t.Logf("test name: %s", tc.name)
+					t.Fatalf("got: %s  expected: %s", quote.Text, tc.expected.Quotes[i].Text)
+				}
+				if len(quote.UUID) != 36 {
+					Database.CleanUp()
+					t.Logf("test name: %s", tc.name)
+					t.Fatalf("worng uuid: %s", quote.UUID)
+				}
+				if len(quote.Author.UUID) != 36 {
+					Database.CleanUp()
+					t.Logf("test name: %s", tc.name)
+					t.Fatalf("worng uuid: %s", quote.Author.UUID)
+				}
+				if got.Author.Name != tc.expected.Author.Name {
+					Database.CleanUp()
+					t.Logf("test name: %s", tc.name)
+					t.Fatalf("got: %s  expected: %s", quote.Author.Name, tc.expected.Author.Name)
+
+				}
+				if got.Author.ID != tc.expected.Author.ID {
+					Database.CleanUp()
+					t.Logf("test name: %s", tc.name)
+					t.Fatalf("got: %d  expected: %d", quote.Author.ID, tc.expected.Author.ID)
+
+				}
+			}
+		}
+	}
+	Database.CleanUp()
+
+}

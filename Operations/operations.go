@@ -3,6 +3,7 @@ package Operations
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/awesomeQuotes/Schemas"
@@ -116,4 +117,28 @@ func SearchQuote(db *sql.DB, text string) (*Schemas.Quote, error) {
 	}
 	quote.Author = *author
 	return &quote, nil
+}
+
+func AuthorQuotes(db *sql.DB, name string) (*Schemas.QuoteList, error) {
+	var result Schemas.QuoteList
+	if name == "" {
+		return nil, errors.New("no author name entered")
+	}
+	name = strings.TrimSpace(strings.ToLower(name))
+	author, err := SearchAuthor(db, name)
+	if err != nil || author.ID == 0 {
+		return nil, err
+	}
+	result.Author = *author
+	rows, err := db.Query(fmt.Sprintf("SELECT * FROM quotes WHERE author_uuid = \"%s\" ", author.UUID))
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var q Schemas.Quote
+		rows.Scan(&q.UUID, &q.ID, &q.Text, &q.Author.UUID)
+		result.Quotes = append(result.Quotes, q)
+	}
+
+	return &result, nil
 }
