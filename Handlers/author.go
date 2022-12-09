@@ -5,11 +5,13 @@ import (
 
 	"github.com/awesomeQuotes/Database"
 	"github.com/awesomeQuotes/Operations"
+	"github.com/awesomeQuotes/Schemas"
 	"github.com/gin-gonic/gin"
 )
 
 func SearchAuthor(c *gin.Context) {
 	db, err := Database.Connect()
+	defer db.Close()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -27,4 +29,25 @@ func SearchAuthor(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, author)
+}
+
+func CreateAuthor(c *gin.Context) {
+	db, err := Database.Connect()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	defer db.Close()
+	var input Schemas.Author
+	err = c.BindJSON(&input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	author, err := Operations.InsertAuthor(db, input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, author)
 }

@@ -13,6 +13,6 @@ func main() {
 		c.JSON(200, gin.H{"Health": "Alive"})
 	})
 	router.GET("/find_author/:name", Handlers.SearchAuthor)
-
+	router.POST("/create_author", Handlers.CreateAuthor)
 	log.Fatalln(router.Run(":8080"))
 }
