@@ -10,7 +10,7 @@ import (
 )
 
 func InsertAuthor(db *sql.DB, author Schemas.Author) (*Schemas.Author, error) {
-	err := validateName(author.Name)
+	err := ValidateName(author.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func InsertAuthor(db *sql.DB, author Schemas.Author) (*Schemas.Author, error) {
 
 func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
 	var author Schemas.Author
-	err := validateName(name)
+	err := ValidateName(name)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func SearchAuthorByUUID(db *sql.DB, uuid string) (*Schemas.Author, error) {
 }
 
 func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
-	err := validateQuote(quote.Text)
+	err := ValidateQuote(quote.Text)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
 
 func SearchQuote(db *sql.DB, text string) (*Schemas.Quote, error) {
 	var quote Schemas.Quote
-	err := validateQuote(text)
+	err := ValidateQuote(text)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func SearchQuote(db *sql.DB, text string) (*Schemas.Quote, error) {
 
 func AuthorQuotes(db *sql.DB, name string) (*Schemas.QuoteList, error) {
 	var result Schemas.QuoteList
-	err := validateName(name)
+	err := ValidateName(name)
 	if err != nil {
 		return nil, err
 	}

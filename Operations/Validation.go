@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func validateName(name string) error {
+func ValidateName(name string) error {
 	if name == "" {
 		return errors.New("no name inserted")
 	} else if len(name) > 60 {
@@ -17,7 +17,7 @@ func validateName(name string) error {
 	return nil
 }
 
-func validateQuote(quote string) error {
+func ValidateQuote(quote string) error {
 	if quote == "" {
 		return errors.New("no quote inserted")
 	} else if len(quote) > 300 {
