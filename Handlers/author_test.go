@@ -14,6 +14,7 @@ import (
 func TestSearchAuthorHandler(t *testing.T) {
 	db, _ := Database.Connect()
 	Operations.InsertAuthor(db, Schemas.Author{Name: "omar"})
+	defer Database.CleanUp()
 
 	type test struct {
 		name     string
@@ -54,9 +55,13 @@ func TestSearchAuthorHandler(t *testing.T) {
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("worng uuid: %s", got.UUID)
 			}
+			if got.ID != tc.expected.ID {
+				Database.CleanUp()
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("expected: %d  got: %d", got.ID, tc.expected.ID)
+			}
 		}
 
 	}
 
-	Database.CleanUp()
 }
