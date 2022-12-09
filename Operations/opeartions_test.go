@@ -17,6 +17,7 @@ func TestUuidGenerator(t *testing.T) {
 }
 
 func TestInsertAuthor(t *testing.T) {
+	defer Database.CleanUp()
 	db, _ := Database.Connect()
 	type test struct {
 		name     string
@@ -35,28 +36,29 @@ func TestInsertAuthor(t *testing.T) {
 	for _, tc := range tests {
 		got, err := InsertAuthor(db, tc.input)
 		if (err != nil) != tc.err {
-			Database.CleanUp()
 			t.Logf("test name: %s", tc.name)
 			t.Fatal(err)
 		}
 		if (got != nil) && (tc.expected != nil) {
 			if got.Name != tc.expected.Name {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %s  got: %s", got.Name, tc.expected.Name)
 			}
 			if len(got.UUID) != 36 {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("worng uuid: %s", got.UUID)
 			}
+			if got.ID != tc.expected.ID {
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("expected: %d  got: %d", got.ID, tc.expected.ID)
+			}
 		}
 	}
-	Database.CleanUp()
 }
 
 func TestSearchAuthor(t *testing.T) {
 	db, _ := Database.Connect()
+	defer Database.CleanUp()
 
 	authors := []Schemas.Author{
 		{Name: "omar"},
@@ -87,28 +89,29 @@ func TestSearchAuthor(t *testing.T) {
 	for _, tc := range tests {
 		got, err := SearchAuthor(db, tc.search)
 		if (err != nil) != tc.err {
-			Database.CleanUp()
 			t.Logf("test name: %s", tc.name)
 			t.Fatal(err)
 		}
 		if (got != nil) && (tc.expected != nil) {
 			if got.Name != tc.expected.Name {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %s  got: %s", got.Name, tc.expected.Name)
 			}
 			if len(got.UUID) != 36 {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("worng uuid: %s", got.UUID)
 			}
+			if got.ID != tc.expected.ID {
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("expected: %d  got: %d", got.ID, tc.expected.ID)
+			}
 		}
 	}
-	Database.CleanUp()
 }
 
 func TestSearchAuthorByUUID(t *testing.T) {
 	db, _ := Database.Connect()
+	defer Database.CleanUp()
 	var uuidList []string
 	authors := []Schemas.Author{
 		{Name: "omar"},
@@ -139,30 +142,31 @@ func TestSearchAuthorByUUID(t *testing.T) {
 	for _, tc := range tests {
 		got, err := SearchAuthorByUUID(db, tc.uuid)
 		if (err != nil) != tc.err {
-			Database.CleanUp()
 			t.Logf("test name: %s", tc.name)
 			t.Fatal(err)
 		}
 		if (got != nil) && (tc.expected != nil) {
 			if got.Name != tc.expected.Name {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %s  got: %s", got.Name, tc.expected.Name)
 			}
 			if len(got.UUID) != 36 || got.UUID != tc.uuid {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("got uuid: %s   expected uuid: %s", got.UUID, tc.uuid)
 			}
+			if got.ID != tc.expected.ID {
+				t.Logf("test name: %s", tc.name)
+				t.Fatalf("expected: %d  got: %d", got.ID, tc.expected.ID)
+			}
 		}
 	}
-	Database.CleanUp()
 }
 
 func TestInsertQuote(t *testing.T) {
 	// to make the test easy to read
 	longtext := "I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard to handle. But if you can't handle me at my worst, then you sure as hell don't deserve me at my best.I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard"
 	db, _ := Database.Connect()
+	defer Database.CleanUp()
 
 	// insert authors for the tests
 	authors := []Schemas.Author{
@@ -193,45 +197,39 @@ func TestInsertQuote(t *testing.T) {
 	for _, tc := range tests {
 		got, err := InsertQuote(db, tc.input)
 		if (err != nil) != tc.err {
-			Database.CleanUp()
 			t.Logf("test name: %s", tc.name)
 			t.Fatal(err)
 		}
 		if (got != nil) && (tc.expected != nil) {
 			if got.Text != tc.expected.Text {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %s  got: %s", got.Text, tc.expected.Text)
 			}
 			if len(got.UUID) != 36 {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("worng uuid: %s", got.UUID)
 			}
 			if len(got.Author.UUID) != 36 {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("worng uuid: %s", got.Author.UUID)
 			}
 			if got.Author.Name != tc.expected.Author.Name {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %s  got: %s", got.Author.Name, tc.expected.Author.Name)
 
 			}
 			if got.Author.ID != tc.expected.Author.ID {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %d  got: %d", got.Author.ID, tc.expected.Author.ID)
 
 			}
 		}
 	}
-	Database.CleanUp()
 }
 
 func TestSearchQuote(t *testing.T) {
 	db, _ := Database.Connect()
+	defer Database.CleanUp()
 
 	// insert quotes for the tests
 	quotes := []Schemas.Quote{
@@ -261,45 +259,39 @@ func TestSearchQuote(t *testing.T) {
 	for _, tc := range tests {
 		got, err := SearchQuote(db, tc.searchQuote)
 		if (err != nil) != tc.err {
-			Database.CleanUp()
 			t.Logf("test name: %s", tc.name)
 			t.Fatal(err)
 		}
 		if (got != nil) && (tc.expected != nil) {
 			if got.Text != tc.expected.Text {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %s  got: %s", got.Text, tc.expected.Text)
 			}
 			if len(got.UUID) != 36 {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("worng uuid: %s", got.UUID)
 			}
 			if len(got.Author.UUID) != 36 {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("worng uuid: %s", got.Author.UUID)
 			}
 			if got.Author.Name != tc.expected.Author.Name {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %s  got: %s", got.Author.Name, tc.expected.Author.Name)
 
 			}
 			if got.Author.ID != tc.expected.Author.ID {
-				Database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %d  got: %d", got.Author.ID, tc.expected.Author.ID)
 
 			}
 		}
 	}
-	Database.CleanUp()
 }
 
 func TestAuthorQuotes(t *testing.T) {
 	db, _ := Database.Connect()
+	defer Database.CleanUp()
 
 	InsertAuthor(db, Schemas.Author{Name: "hany"})
 	// insert quotes for the tests
@@ -335,35 +327,29 @@ func TestAuthorQuotes(t *testing.T) {
 	for _, tc := range tests {
 		got, err := AuthorQuotes(db, tc.searchAuthor)
 		if (err != nil) != tc.err {
-			Database.CleanUp()
 			t.Logf("test name: %s", tc.name)
 			t.Fatal(err)
 		}
 		if (got != nil) && (tc.expected != nil) {
 			for i, quote := range got.Quotes {
 				if quote.Text != tc.expected.Quotes[i].Text {
-					Database.CleanUp()
 					t.Logf("test name: %s", tc.name)
 					t.Fatalf("got: %s  expected: %s", quote.Text, tc.expected.Quotes[i].Text)
 				}
 				if len(quote.UUID) != 36 {
-					Database.CleanUp()
 					t.Logf("test name: %s", tc.name)
 					t.Fatalf("worng uuid: %s", quote.UUID)
 				}
 				if len(quote.Author.UUID) != 36 {
-					Database.CleanUp()
 					t.Logf("test name: %s", tc.name)
 					t.Fatalf("worng uuid: %s", quote.Author.UUID)
 				}
 				if got.Author.Name != tc.expected.Author.Name {
-					Database.CleanUp()
 					t.Logf("test name: %s", tc.name)
 					t.Fatalf("got: %s  expected: %s", quote.Author.Name, tc.expected.Author.Name)
 
 				}
 				if got.Author.ID != tc.expected.Author.ID {
-					Database.CleanUp()
 					t.Logf("test name: %s", tc.name)
 					t.Fatalf("got: %d  expected: %d", quote.Author.ID, tc.expected.Author.ID)
 
@@ -371,6 +357,5 @@ func TestAuthorQuotes(t *testing.T) {
 			}
 		}
 	}
-	Database.CleanUp()
 
 }
