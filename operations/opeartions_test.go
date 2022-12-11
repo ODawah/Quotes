@@ -1,10 +1,10 @@
-package Operations
+package operations
 
 import (
 	"testing"
 
-	"github.com/awesomeQuotes/Database"
-	"github.com/awesomeQuotes/Schemas"
+	"github.com/awesomeQuotes/database"
+	"github.com/awesomeQuotes/schemas"
 )
 
 func TestUuidGenerator(t *testing.T) {
@@ -17,20 +17,20 @@ func TestUuidGenerator(t *testing.T) {
 }
 
 func TestInsertAuthor(t *testing.T) {
-	defer Database.CleanUp()
-	db, _ := Database.Connect()
+	defer database.CleanUp()
+	db, _ := database.Connect()
 	type test struct {
 		name     string
-		input    Schemas.Author
-		expected *Schemas.Author
+		input    schemas.Author
+		expected *schemas.Author
 		err      bool
 	}
 	tests := []test{
-		{"normal name", Schemas.Author{Name: "omar"}, &Schemas.Author{Name: "omar", ID: 1}, false},
-		{"capital name", Schemas.Author{Name: "ADHAM"}, &Schemas.Author{Name: "adham", ID: 2}, false},
-		{"name less than 3 chars", Schemas.Author{Name: "om"}, nil, true},
-		{"no name", Schemas.Author{Name: ""}, nil, true},
-		{"input larger than constraint (70)", Schemas.Author{Name: "john ben karim samir george johnny omar ahmed mahmoud masouds"}, nil, true},
+		{"normal name", schemas.Author{Name: "omar"}, &schemas.Author{Name: "omar", ID: 1}, false},
+		{"capital name", schemas.Author{Name: "ADHAM"}, &schemas.Author{Name: "adham", ID: 2}, false},
+		{"name less than 3 chars", schemas.Author{Name: "om"}, nil, true},
+		{"no name", schemas.Author{Name: ""}, nil, true},
+		{"input larger than constraint (70)", schemas.Author{Name: "john ben karim samir george johnny omar ahmed mahmoud masouds"}, nil, true},
 	}
 
 	for _, tc := range tests {
@@ -57,10 +57,10 @@ func TestInsertAuthor(t *testing.T) {
 }
 
 func TestSearchAuthor(t *testing.T) {
-	db, _ := Database.Connect()
-	defer Database.CleanUp()
+	db, _ := database.Connect()
+	defer database.CleanUp()
 
-	authors := []Schemas.Author{
+	authors := []schemas.Author{
 		{Name: "omar"},
 		{Name: "adham"},
 		{Name: "maged"},
@@ -76,12 +76,12 @@ func TestSearchAuthor(t *testing.T) {
 	type test struct {
 		name     string
 		search   string
-		expected *Schemas.Author
+		expected *schemas.Author
 		err      bool
 	}
 	tests := []test{
-		{"normal name", "omar", &Schemas.Author{Name: "omar", ID: 1}, false},
-		{"capital name", "ADHAM", &Schemas.Author{Name: "adham", ID: 2}, false},
+		{"normal name", "omar", &schemas.Author{Name: "omar", ID: 1}, false},
+		{"capital name", "ADHAM", &schemas.Author{Name: "adham", ID: 2}, false},
 		{"name not in database", "george", nil, true},
 		{"no search name", "", nil, true},
 	}
@@ -110,10 +110,10 @@ func TestSearchAuthor(t *testing.T) {
 }
 
 func TestSearchAuthorByUUID(t *testing.T) {
-	db, _ := Database.Connect()
-	defer Database.CleanUp()
+	db, _ := database.Connect()
+	defer database.CleanUp()
 	var uuidList []string
-	authors := []Schemas.Author{
+	authors := []schemas.Author{
 		{Name: "omar"},
 		{Name: "adham"},
 		{Name: "maged"},
@@ -130,11 +130,11 @@ func TestSearchAuthorByUUID(t *testing.T) {
 	type test struct {
 		name     string
 		uuid     string
-		expected *Schemas.Author
+		expected *schemas.Author
 		err      bool
 	}
 	tests := []test{
-		{"author UUID in database", uuidList[0], &Schemas.Author{Name: "omar", ID: 1}, false},
+		{"author UUID in database", uuidList[0], &schemas.Author{Name: "omar", ID: 1}, false},
 		{"author UUID not in database", "aasdweqd1-aseqweg3-qe120oe-owek1olsd", nil, true},
 		{"no UUID", "", nil, true},
 	}
@@ -165,11 +165,11 @@ func TestSearchAuthorByUUID(t *testing.T) {
 func TestInsertQuote(t *testing.T) {
 	// to make the test easy to read
 	longtext := "I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard to handle. But if you can't handle me at my worst, then you sure as hell don't deserve me at my best.I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard"
-	db, _ := Database.Connect()
-	defer Database.CleanUp()
+	db, _ := database.Connect()
+	defer database.CleanUp()
 
 	// insert authors for the tests
-	authors := []Schemas.Author{
+	authors := []schemas.Author{
 		{Name: "omar"},
 		{Name: "adham"},
 	}
@@ -182,16 +182,16 @@ func TestInsertQuote(t *testing.T) {
 
 	type test struct {
 		name     string
-		input    Schemas.Quote
-		expected *Schemas.Quote
+		input    schemas.Quote
+		expected *schemas.Quote
 		err      bool
 	}
 	tests := []test{
-		{"author in database", Schemas.Quote{Text: "heaven is for real", Author: Schemas.Author{Name: "omar"}}, &Schemas.Quote{Text: "heaven is for real", Author: Schemas.Author{Name: "omar", ID: 1}}, false},
-		{"author not in database", Schemas.Quote{Text: "Keep Dreaming", Author: Schemas.Author{Name: "maged"}}, &Schemas.Quote{Text: "keep dreaming", Author: Schemas.Author{Name: "maged", ID: 3}}, false},
-		{"no quote", Schemas.Quote{Text: "", Author: Schemas.Author{Name: "maged"}}, nil, true},
-		{"long quote", Schemas.Quote{Text: longtext, Author: Schemas.Author{Name: "omar"}}, nil, true},
-		{"short quote", Schemas.Quote{Text: "short", Author: Schemas.Author{Name: "omar"}}, nil, true},
+		{"author in database", schemas.Quote{Text: "heaven is for real", Author: schemas.Author{Name: "omar"}}, &schemas.Quote{Text: "heaven is for real", Author: schemas.Author{Name: "omar", ID: 1}}, false},
+		{"author not in database", schemas.Quote{Text: "Keep Dreaming", Author: schemas.Author{Name: "maged"}}, &schemas.Quote{Text: "keep dreaming", Author: schemas.Author{Name: "maged", ID: 3}}, false},
+		{"no quote", schemas.Quote{Text: "", Author: schemas.Author{Name: "maged"}}, nil, true},
+		{"long quote", schemas.Quote{Text: longtext, Author: schemas.Author{Name: "omar"}}, nil, true},
+		{"short quote", schemas.Quote{Text: "short", Author: schemas.Author{Name: "omar"}}, nil, true},
 	}
 
 	for _, tc := range tests {
@@ -228,14 +228,14 @@ func TestInsertQuote(t *testing.T) {
 }
 
 func TestSearchQuote(t *testing.T) {
-	db, _ := Database.Connect()
-	defer Database.CleanUp()
+	db, _ := database.Connect()
+	defer database.CleanUp()
 
 	// insert quotes for the tests
-	quotes := []Schemas.Quote{
-		{Text: "heaven is for real", Author: Schemas.Author{Name: "omar"}},
-		{Text: "keep dreaming", Author: Schemas.Author{Name: "omar"}},
-		{Text: "work hard and non stop", Author: Schemas.Author{Name: "adham"}},
+	quotes := []schemas.Quote{
+		{Text: "heaven is for real", Author: schemas.Author{Name: "omar"}},
+		{Text: "keep dreaming", Author: schemas.Author{Name: "omar"}},
+		{Text: "work hard and non stop", Author: schemas.Author{Name: "adham"}},
 	}
 
 	for _, tc := range quotes {
@@ -248,11 +248,11 @@ func TestSearchQuote(t *testing.T) {
 	type test struct {
 		name        string
 		searchQuote string
-		expected    *Schemas.Quote
+		expected    *schemas.Quote
 		err         bool
 	}
 	tests := []test{
-		{"quote in database", "heaven is for real", &Schemas.Quote{Text: "heaven is for real", Author: Schemas.Author{Name: "omar", ID: 1}}, false},
+		{"quote in database", "heaven is for real", &schemas.Quote{Text: "heaven is for real", Author: schemas.Author{Name: "omar", ID: 1}}, false},
 		{"quote not in database", "get yourself out mud", nil, true},
 		{"no quote", "", nil, true},
 	}
@@ -290,15 +290,15 @@ func TestSearchQuote(t *testing.T) {
 }
 
 func TestAuthorQuotes(t *testing.T) {
-	db, _ := Database.Connect()
-	defer Database.CleanUp()
+	db, _ := database.Connect()
+	defer database.CleanUp()
 
-	InsertAuthor(db, Schemas.Author{Name: "hany"})
+	InsertAuthor(db, schemas.Author{Name: "hany"})
 	// insert quotes for the tests
-	quotes := []Schemas.Quote{
-		{Text: "heaven is for real", Author: Schemas.Author{Name: "omar"}},
-		{Text: "keep dreaming", Author: Schemas.Author{Name: "omar"}},
-		{Text: "work hard and non stop", Author: Schemas.Author{Name: "adham"}},
+	quotes := []schemas.Quote{
+		{Text: "heaven is for real", Author: schemas.Author{Name: "omar"}},
+		{Text: "keep dreaming", Author: schemas.Author{Name: "omar"}},
+		{Text: "work hard and non stop", Author: schemas.Author{Name: "adham"}},
 	}
 
 	for _, tc := range quotes {
@@ -311,16 +311,16 @@ func TestAuthorQuotes(t *testing.T) {
 	type test struct {
 		name         string
 		searchAuthor string
-		expected     *Schemas.QuoteList
+		expected     *schemas.QuoteList
 		err          bool
 	}
 
 	tests := []test{
-		{"author in database", "omar", &Schemas.QuoteList{Author: Schemas.Author{Name: "omar", ID: 2}, Quotes: []Schemas.Quote{
-			{Text: "heaven is for real", Author: Schemas.Author{Name: "omar", ID: 2}},
-			{Text: "keep dreaming", Author: Schemas.Author{Name: "omar", ID: 2}},
+		{"author in database", "omar", &schemas.QuoteList{Author: schemas.Author{Name: "omar", ID: 2}, Quotes: []schemas.Quote{
+			{Text: "heaven is for real", Author: schemas.Author{Name: "omar", ID: 2}},
+			{Text: "keep dreaming", Author: schemas.Author{Name: "omar", ID: 2}},
 		}}, false},
-		{"author with no quotes", "hany", &Schemas.QuoteList{}, false},
+		{"author with no quotes", "hany", &schemas.QuoteList{}, false},
 		{"no author", "", nil, true},
 	}
 

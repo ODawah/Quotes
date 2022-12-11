@@ -1,4 +1,4 @@
-package Handlers
+package handlers
 
 import (
 	"bytes"
@@ -7,32 +7,32 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/awesomeQuotes/Database"
-	"github.com/awesomeQuotes/Operations"
-	"github.com/awesomeQuotes/Schemas"
+	"github.com/awesomeQuotes/database"
+	"github.com/awesomeQuotes/operations"
+	"github.com/awesomeQuotes/schemas"
 )
 
 func TestSearchQuote(t *testing.T) {
-	db, _ := Database.Connect()
-	Operations.InsertQuote(db, Schemas.Quote{
+	db, _ := database.Connect()
+	operations.InsertQuote(db, schemas.Quote{
 		Text:   "Keep it simple, stupid",
-		Author: Schemas.Author{Name: "omar"},
+		Author: schemas.Author{Name: "omar"},
 	})
-	defer Database.CleanUp()
+	defer database.CleanUp()
 	type test struct {
 		name     string
-		input    *Schemas.Quote
-		expected *Schemas.Quote
+		input    *schemas.Quote
+		expected *schemas.Quote
 		err      bool
 	}
 	tests := []test{
-		{"normal quote", &Schemas.Quote{Text: "keep it simple, stupid"}, &Schemas.Quote{Text: "keep it simple, stupid", ID: 1, Author: Schemas.Author{Name: "omar", ID: 1}}, false},
-		{"quote not in database", &Schemas.Quote{Text: "Keep dreaming"}, nil, false},
+		{"normal quote", &schemas.Quote{Text: "keep it simple, stupid"}, &schemas.Quote{Text: "keep it simple, stupid", ID: 1, Author: schemas.Author{Name: "omar", ID: 1}}, false},
+		{"quote not in database", &schemas.Quote{Text: "Keep dreaming"}, nil, false},
 		{"empty body", nil, nil, true}, {"no body", nil, nil, true},
 	}
 
 	for _, tc := range tests {
-		var got *Schemas.Quote
+		var got *schemas.Quote
 		client := &http.Client{}
 		b, err := json.Marshal(tc.input)
 		if err != nil {
@@ -86,22 +86,22 @@ func TestSearchQuote(t *testing.T) {
 }
 
 func TestCreateQuote(t *testing.T) {
-	defer Database.CleanUp()
+	defer database.CleanUp()
 	type test struct {
 		name     string
-		input    *Schemas.Quote
-		expected *Schemas.Quote
+		input    *schemas.Quote
+		expected *schemas.Quote
 		err      bool
 	}
 	tests := []test{
-		{"normal quote", &Schemas.Quote{Text: "keep it real", Author: Schemas.Author{Name: "omar", ID: 1}}, &Schemas.Quote{Text: "keep it real", ID: 1, Author: Schemas.Author{Name: "omar", ID: 1}}, false},
-		{"quote duplicate", &Schemas.Quote{Text: "keep it simple, stupid", Author: Schemas.Author{Name: "omar", ID: 1}}, nil, false},
-		{"no quote", &Schemas.Quote{Author: Schemas.Author{Name: "omar", ID: 1}}, nil, false},
-		{"no quote author", &Schemas.Quote{Text: "Keep dreaming"}, nil, false},
+		{"normal quote", &schemas.Quote{Text: "keep it real", Author: schemas.Author{Name: "omar", ID: 1}}, &schemas.Quote{Text: "keep it real", ID: 1, Author: schemas.Author{Name: "omar", ID: 1}}, false},
+		{"quote duplicate", &schemas.Quote{Text: "keep it simple, stupid", Author: schemas.Author{Name: "omar", ID: 1}}, nil, false},
+		{"no quote", &schemas.Quote{Author: schemas.Author{Name: "omar", ID: 1}}, nil, false},
+		{"no quote author", &schemas.Quote{Text: "Keep dreaming"}, nil, false},
 		{"empty body", nil, nil, true}, {"no body", nil, nil, true},
 	}
 	for _, tc := range tests {
-		var got *Schemas.Quote
+		var got *schemas.Quote
 		var buffer bytes.Buffer
 		err := json.NewEncoder(&buffer).Encode(tc.input)
 		if err != nil {
@@ -150,35 +150,35 @@ func TestCreateQuote(t *testing.T) {
 }
 
 func TestAuthorQuotes(t *testing.T) {
-	db, _ := Database.Connect()
-	Operations.InsertQuote(db, Schemas.Quote{
+	db, _ := database.Connect()
+	operations.InsertQuote(db, schemas.Quote{
 		Text:   "Keep it simple, stupid",
-		Author: Schemas.Author{Name: "omar"},
+		Author: schemas.Author{Name: "omar"},
 	})
-	Operations.InsertQuote(db, Schemas.Quote{
+	operations.InsertQuote(db, schemas.Quote{
 		Text:   "Go with the flow",
-		Author: Schemas.Author{Name: "omar"},
+		Author: schemas.Author{Name: "omar"},
 	})
 
-	defer Database.CleanUp()
+	defer database.CleanUp()
 	type test struct {
 		name     string
 		url      string
-		expected *Schemas.QuoteList
+		expected *schemas.QuoteList
 		err      bool
 	}
 
 	tests := []test{
-		{"normal name", "http://localhost:8080/find_Author_quotes/omar", &Schemas.QuoteList{Author: Schemas.Author{Name: "omar", ID: 1}, Quotes: []Schemas.Quote{
-			{Text: "keep it simple, stupid", Author: Schemas.Author{Name: "omar", ID: 1}},
-			{Text: "go with the flow", Author: Schemas.Author{Name: "omar", ID: 1}},
+		{"normal name", "http://localhost:8080/find_Author_quotes/omar", &schemas.QuoteList{Author: schemas.Author{Name: "omar", ID: 1}, Quotes: []schemas.Quote{
+			{Text: "keep it simple, stupid", Author: schemas.Author{Name: "omar", ID: 1}},
+			{Text: "go with the flow", Author: schemas.Author{Name: "omar", ID: 1}},
 		}}, false},
 		{"name not in database", "http://localhost:8080/find_Author_quotes/george", nil, true},
 		{"no search name", "http://localhost:8080/find_Author_quotes/", nil, true},
 	}
 
 	for _, tc := range tests {
-		var got *Schemas.QuoteList
+		var got *schemas.QuoteList
 		resp, err := http.Get(tc.url)
 		if err != nil {
 			t.Fatal(err)

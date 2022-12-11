@@ -1,4 +1,4 @@
-package Schemas
+package schemas
 
 type Quote struct {
 	UUID   string `json:"UUID"`

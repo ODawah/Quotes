@@ -1,4 +1,4 @@
-package Operations
+package operations
 
 import (
 	"database/sql"
@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/awesomeQuotes/Schemas"
+	"github.com/awesomeQuotes/schemas"
 )
 
-func InsertAuthor(db *sql.DB, author Schemas.Author) (*Schemas.Author, error) {
+func InsertAuthor(db *sql.DB, author schemas.Author) (*schemas.Author, error) {
 	err := ValidateName(author.Name)
 	if err != nil {
 		return nil, err
@@ -29,8 +29,8 @@ func InsertAuthor(db *sql.DB, author Schemas.Author) (*Schemas.Author, error) {
 	return &author, nil
 }
 
-func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
-	var author Schemas.Author
+func SearchAuthor(db *sql.DB, name string) (*schemas.Author, error) {
+	var author schemas.Author
 	err := ValidateName(name)
 	if err != nil {
 		return nil, err
@@ -47,8 +47,8 @@ func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
 	return &author, nil
 }
 
-func SearchAuthorByUUID(db *sql.DB, uuid string) (*Schemas.Author, error) {
-	var author Schemas.Author
+func SearchAuthorByUUID(db *sql.DB, uuid string) (*schemas.Author, error) {
+	var author schemas.Author
 	valid := ValidateUUID(uuid)
 	if !valid {
 		return nil, errors.New("not valid uuid entered")
@@ -64,12 +64,12 @@ func SearchAuthorByUUID(db *sql.DB, uuid string) (*Schemas.Author, error) {
 	return &author, nil
 }
 
-func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
+func InsertQuote(db *sql.DB, quote schemas.Quote) (*schemas.Quote, error) {
 	err := ValidateQuote(quote.Text)
 	if err != nil {
 		return nil, err
 	}
-	var author *Schemas.Author
+	var author *schemas.Author
 	author, err = SearchAuthor(db, quote.Author.Name)
 	if err != nil || author == nil {
 		author, err = InsertAuthor(db, quote.Author)
@@ -93,8 +93,8 @@ func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
 	return &quote, nil
 }
 
-func SearchQuote(db *sql.DB, text string) (*Schemas.Quote, error) {
-	var quote Schemas.Quote
+func SearchQuote(db *sql.DB, text string) (*schemas.Quote, error) {
+	var quote schemas.Quote
 	err := ValidateQuote(text)
 	if err != nil {
 		return nil, err
@@ -116,8 +116,8 @@ func SearchQuote(db *sql.DB, text string) (*Schemas.Quote, error) {
 	return &quote, nil
 }
 
-func AuthorQuotes(db *sql.DB, name string) (*Schemas.QuoteList, error) {
-	var result Schemas.QuoteList
+func AuthorQuotes(db *sql.DB, name string) (*schemas.QuoteList, error) {
+	var result schemas.QuoteList
 	err := ValidateName(name)
 	if err != nil {
 		return nil, err
@@ -133,7 +133,7 @@ func AuthorQuotes(db *sql.DB, name string) (*Schemas.QuoteList, error) {
 		return nil, err
 	}
 	for rows.Next() {
-		var q Schemas.Quote
+		var q schemas.Quote
 		rows.Scan(&q.UUID, &q.ID, &q.Text, &q.Author.UUID)
 		q.Author.ID = author.ID
 		result.Quotes = append(result.Quotes, q)

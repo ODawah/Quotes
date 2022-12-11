@@ -1,4 +1,4 @@
-package Schemas
+package schemas
 
 type Author struct {
 	UUID string `json:"UUID"`

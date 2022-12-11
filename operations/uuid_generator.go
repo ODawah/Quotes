@@ -1,4 +1,4 @@
-package Operations
+package operations
 
 import (
 	"github.com/google/uuid"

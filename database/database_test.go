@@ -1,4 +1,4 @@
-package Database
+package database
 
 import (
 	"os"
@@ -12,7 +12,7 @@ func TestCleanUp(t *testing.T) {
 	}
 	CleanUp()
 	if _, err := os.Stat("./quotes.db"); err == nil {
-		t.Fatal("Database file not deleted")
+		t.Fatal("database file not deleted")
 	}
 }
 

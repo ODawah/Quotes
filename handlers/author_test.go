@@ -1,4 +1,4 @@
-package Handlers
+package handlers
 
 import (
 	"bytes"
@@ -7,32 +7,32 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/awesomeQuotes/Database"
-	"github.com/awesomeQuotes/Operations"
-	"github.com/awesomeQuotes/Schemas"
+	"github.com/awesomeQuotes/database"
+	"github.com/awesomeQuotes/operations"
+	"github.com/awesomeQuotes/schemas"
 )
 
 func TestSearchAuthorHandler(t *testing.T) {
-	db, _ := Database.Connect()
-	Operations.InsertAuthor(db, Schemas.Author{Name: "omar"})
-	defer Database.CleanUp()
+	db, _ := database.Connect()
+	operations.InsertAuthor(db, schemas.Author{Name: "omar"})
+	defer database.CleanUp()
 
 	type test struct {
 		name     string
 		url      string
-		expected *Schemas.Author
+		expected *schemas.Author
 		err      bool
 	}
 
 	tests := []test{
-		{"normal name", "http://localhost:8080/find_author/omar", &Schemas.Author{Name: "omar", ID: 1}, false},
-		{"capital name", "http://localhost:8080/find_author/OMAR", &Schemas.Author{Name: "omar", ID: 1}, false},
+		{"normal name", "http://localhost:8080/find_author/omar", &schemas.Author{Name: "omar", ID: 1}, false},
+		{"capital name", "http://localhost:8080/find_author/OMAR", &schemas.Author{Name: "omar", ID: 1}, false},
 		{"name not in database", "http://localhost:8080/find_author/george", nil, true},
 		{"no search name", "http://localhost:8080/find_author/", nil, true},
 	}
 
 	for _, tc := range tests {
-		var got *Schemas.Author
+		var got *schemas.Author
 		resp, err := http.Get(tc.url)
 		if err != nil {
 			t.Fatal(err)
@@ -47,17 +47,17 @@ func TestSearchAuthorHandler(t *testing.T) {
 		}
 		if (got != nil) && (tc.expected != nil) {
 			if got.Name != tc.expected.Name {
-				Database.CleanUp()
+				database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %s  got: %s", got.Name, tc.expected.Name)
 			}
 			if len(got.UUID) != 36 {
-				Database.CleanUp()
+				database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("worng uuid: %s", got.UUID)
 			}
 			if got.ID != tc.expected.ID {
-				Database.CleanUp()
+				database.CleanUp()
 				t.Logf("test name: %s", tc.name)
 				t.Fatalf("expected: %d  got: %d", got.ID, tc.expected.ID)
 			}
@@ -68,20 +68,20 @@ func TestSearchAuthorHandler(t *testing.T) {
 }
 
 func TestCreateAuthor(t *testing.T) {
-	defer Database.CleanUp()
+	defer database.CleanUp()
 	type test struct {
 		name     string
-		input    *Schemas.Author
-		expected *Schemas.Author
+		input    *schemas.Author
+		expected *schemas.Author
 		err      bool
 	}
 	tests := []test{
-		{"normal name", &Schemas.Author{Name: "william"}, &Schemas.Author{Name: "william", ID: 1}, false},
-		{"capital name", &Schemas.Author{Name: "JENNIFER"}, &Schemas.Author{Name: "jennifer", ID: 2}, false},
-		{"empty body", &Schemas.Author{}, nil, true}, {"no body", nil, nil, true},
+		{"normal name", &schemas.Author{Name: "william"}, &schemas.Author{Name: "william", ID: 1}, false},
+		{"capital name", &schemas.Author{Name: "JENNIFER"}, &schemas.Author{Name: "jennifer", ID: 2}, false},
+		{"empty body", &schemas.Author{}, nil, true}, {"no body", nil, nil, true},
 	}
 	for _, tc := range tests {
-		var got *Schemas.Author
+		var got *schemas.Author
 		var buffer bytes.Buffer
 		err := json.NewEncoder(&buffer).Encode(tc.input)
 		if err != nil {
