@@ -8,7 +8,7 @@ import (
 )
 
 func Connect() (*sql.DB, error) {
-	database, err := sql.Open("sqlite3", "../quotes.db")
+	database, err := sql.Open("sqlite3", "/home/lenovo/go/src/github.com/awesomeQuotes/quotes.db")
 	if err != nil {
 		return nil, err
 	}
@@ -27,6 +27,6 @@ func Connect() (*sql.DB, error) {
 }
 
 func CleanUp() error {
-	err := os.Remove("../quotes.db")
+	err := os.Remove("/home/lenovo/go/src/github.com/awesomeQuotes/quotes.db")
 	return err
 }

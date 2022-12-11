@@ -330,6 +330,7 @@ func TestAuthorQuotes(t *testing.T) {
 			t.Logf("test name: %s", tc.name)
 			t.Fatal(err)
 		}
+		t.Log(got)
 		if (got != nil) && (tc.expected != nil) {
 			for i, quote := range got.Quotes {
 				if quote.Text != tc.expected.Quotes[i].Text {

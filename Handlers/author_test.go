@@ -81,7 +81,6 @@ func TestCreateAuthor(t *testing.T) {
 		{"empty body", &Schemas.Author{}, nil, true}, {"no body", nil, nil, true},
 	}
 	for _, tc := range tests {
-		Database.Connect()
 		var got *Schemas.Author
 		var buffer bytes.Buffer
 		err := json.NewEncoder(&buffer).Encode(tc.input)

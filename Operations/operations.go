@@ -10,7 +10,6 @@ import (
 )
 
 func InsertAuthor(db *sql.DB, author Schemas.Author) (*Schemas.Author, error) {
-	defer db.Close()
 	err := ValidateName(author.Name)
 	if err != nil {
 		return nil, err
@@ -31,7 +30,6 @@ func InsertAuthor(db *sql.DB, author Schemas.Author) (*Schemas.Author, error) {
 }
 
 func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
-	defer db.Close()
 	var author Schemas.Author
 	err := ValidateName(name)
 	if err != nil {
@@ -50,7 +48,6 @@ func SearchAuthor(db *sql.DB, name string) (*Schemas.Author, error) {
 }
 
 func SearchAuthorByUUID(db *sql.DB, uuid string) (*Schemas.Author, error) {
-	defer db.Close()
 	var author Schemas.Author
 	valid := ValidateUUID(uuid)
 	if !valid {
@@ -68,7 +65,6 @@ func SearchAuthorByUUID(db *sql.DB, uuid string) (*Schemas.Author, error) {
 }
 
 func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
-	defer db.Close()
 	err := ValidateQuote(quote.Text)
 	if err != nil {
 		return nil, err
@@ -98,7 +94,6 @@ func InsertQuote(db *sql.DB, quote Schemas.Quote) (*Schemas.Quote, error) {
 }
 
 func SearchQuote(db *sql.DB, text string) (*Schemas.Quote, error) {
-	defer db.Close()
 	var quote Schemas.Quote
 	err := ValidateQuote(text)
 	if err != nil {
@@ -122,7 +117,6 @@ func SearchQuote(db *sql.DB, text string) (*Schemas.Quote, error) {
 }
 
 func AuthorQuotes(db *sql.DB, name string) (*Schemas.QuoteList, error) {
-	defer db.Close()
 	var result Schemas.QuoteList
 	err := ValidateName(name)
 	if err != nil {
@@ -141,6 +135,7 @@ func AuthorQuotes(db *sql.DB, name string) (*Schemas.QuoteList, error) {
 	for rows.Next() {
 		var q Schemas.Quote
 		rows.Scan(&q.UUID, &q.ID, &q.Text, &q.Author.UUID)
+		q.Author.ID = author.ID
 		result.Quotes = append(result.Quotes, q)
 	}
 
